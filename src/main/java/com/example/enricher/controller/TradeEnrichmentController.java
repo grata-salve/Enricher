@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 
@@ -24,16 +25,21 @@ public class TradeEnrichmentController {
     @PostMapping(value = "/enrich",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = "text/csv")
-    public CompletableFuture<ResponseEntity<String>> enrichTradesAsync(@RequestParam("file") MultipartFile file) {
+    public CompletableFuture<ResponseEntity<byte[]>> enrichTradesAsync(@RequestParam("file") MultipartFile file) {
         try {
-            String csvData = new String(file.getBytes(), StandardCharsets.UTF_8);
-            // Асинхронный вызов enrichTradesAsync
-            return tradeEnrichmentService.enrichTradesAsync(csvData)
-                    .thenApply(enrichedCsv -> ResponseEntity.ok(enrichedCsv));
+            // Получаем InputStream без его немедленного закрытия
+            InputStream inputStream = file.getInputStream();
+            // Передаём InputStream в асинхронный метод
+            return tradeEnrichmentService.enrichTrades(inputStream)
+                    .thenApply(enrichedCsv -> ResponseEntity.ok()
+                            .contentType(MediaType.valueOf("text/csv"))
+                            .body(enrichedCsv.getBytes(StandardCharsets.UTF_8)));
         } catch (IOException e) {
             return CompletableFuture.completedFuture(
-                    ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing file")
+                    ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body("Error processing file".getBytes(StandardCharsets.UTF_8))
             );
         }
     }
+
 }
