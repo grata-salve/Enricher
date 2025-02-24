@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -41,7 +42,7 @@ public class TradeEnrichmentService {
             String enrichedData = reader.lines()
                     .skip(1)
                     .map(this::processLine)
-                    .filter(enrichedLine -> enrichedLine != null)
+                    .filter(Objects::nonNull)
                     .collect(Collectors.joining("\n"));
             return CompletableFuture.completedFuture(header + enrichedData);
         } catch (IOException e) {
