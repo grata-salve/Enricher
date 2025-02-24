@@ -2,6 +2,7 @@ package com.example.enricher.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -10,6 +11,7 @@ import java.io.StringReader;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class TradeEnrichmentService {
@@ -22,18 +24,20 @@ public class TradeEnrichmentService {
         this.productService = productService;
     }
 
-    public String enrichTrades(String csvData) {
+    /**
+     * Асинхронная версия метода обогащения CSV.
+     */
+    @Async
+    public CompletableFuture<String> enrichTradesAsync(String csvData) {
         StringBuilder sb = new StringBuilder();
-        // Заголовок результирующего CSV
-        sb.append("date,productName,currency,price").append("\n");
+        sb.append("date,productName,currency,price\n");
 
         try (BufferedReader reader = new BufferedReader(new StringReader(csvData))) {
             String line;
             boolean firstLine = true;
             while ((line = reader.readLine()) != null) {
-                // Пропускаем заголовок входящего CSV
                 if (firstLine) {
-                    firstLine = false;
+                    firstLine = false; // пропускаем заголовок входящего CSV
                     continue;
                 }
                 String[] tokens = line.split(",");
@@ -54,10 +58,9 @@ public class TradeEnrichmentService {
                     continue;
                 }
 
-                // Получение названия продукта через Redis
+                // Получение названия продукта
                 String productName = productService.getProductName(productId);
 
-                // Формирование строки обогащенных данных
                 sb.append(dateStr).append(",")
                         .append(productName).append(",")
                         .append(currency).append(",")
@@ -66,6 +69,8 @@ public class TradeEnrichmentService {
         } catch (IOException e) {
             logger.error("Error processing CSV data", e);
         }
-        return sb.toString();
+
+        // Оборачиваем результат в CompletableFuture
+        return CompletableFuture.completedFuture(sb.toString());
     }
 }

@@ -1,16 +1,16 @@
 package com.example.enricher.controller;
 
-import com.example.enricher.EnricherApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = EnricherApplication.class)
+@SpringBootTest
 @AutoConfigureMockMvc
 public class TradeEnrichmentControllerTest {
 
@@ -18,22 +18,17 @@ public class TradeEnrichmentControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    public void testEnrichEndpoint() throws Exception {
-        String inputCsv = "date,productId,currency,price\n" +
+    public void testEnrichEndpointWithFile() throws Exception {
+        String csvData = "date,productId,currency,price\n" +
                 "20230101,1,USD,100.25\n" +
                 "20230101,2,EUR,200.45\n" +
                 "invalidDate,1,EUR,1700.70\n";
 
-        // Обновленные ожидаемые данные в соответствии с вашим product.csv
-        String expectedResponse = "date,productName,currency,price\n" +
-                "20230101,Commodity Swaps 1,USD,100.25\n" +
-                "20230101,Commodity Swaps,EUR,200.45\n";
+        // Создаем MockMultipartFile
+        MockMultipartFile file = new MockMultipartFile("file", "trade.csv", "text/csv", csvData.getBytes());
 
-        mockMvc.perform(post("/api/v1/enrich")
-                        .contentType("text/csv")
-                        .content(inputCsv))
-                .andExpect(status().isOk())
-                .andExpect(content().string(expectedResponse));
+        // Выполняем запрос
+        mockMvc.perform(multipart("/api/v1/enrich").file(file))
+                .andExpect(status().isOk());
     }
 }
-

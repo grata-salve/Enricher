@@ -1,14 +1,14 @@
 package com.example.enricher.service;
 
-
 import org.junit.jupiter.api.Test;
+import java.util.concurrent.CompletableFuture;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 public class TradeEnrichmentServiceTest {
 
     @Test
-    public void testEnrichTrades() {
+    public void testEnrichTradesAsync() {
         // Создаем mock для ProductService
         ProductService productService = mock(ProductService.class);
         when(productService.getProductName("1")).thenReturn("Treasury Bills Domestic");
@@ -25,7 +25,10 @@ public class TradeEnrichmentServiceTest {
                 "invalidDate,1,EUR,1700.70\n";
 
         TradeEnrichmentService service = new TradeEnrichmentService(productService);
-        String resultCsv = service.enrichTrades(inputCsv);
+        // Вызываем асинхронный метод
+        CompletableFuture<String> futureResult = service.enrichTradesAsync(inputCsv);
+        // Ожидаем завершения и получаем результат
+        String resultCsv = futureResult.join();
 
         String expected = "date,productName,currency,price\n" +
                 "20230101,Treasury Bills Domestic,USD,100.25\n" +
