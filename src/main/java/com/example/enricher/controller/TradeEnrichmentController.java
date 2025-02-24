@@ -21,21 +21,6 @@ public class TradeEnrichmentController {
         this.tradeEnrichmentService = tradeEnrichmentService;
     }
 
-//    @PostMapping(value = "/enrich",
-//            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-//            produces = "text/csv")
-//    public ResponseEntity<String> enrichTrades(@RequestParam("file") MultipartFile file) {
-//        try {
-//            String csvData = new String(file.getBytes(), StandardCharsets.UTF_8);
-//            // Синхронный вызов
-//            String enrichedCsv = tradeEnrichmentService.enrichTradesAsync(csvData).join();
-//            return ResponseEntity.ok(enrichedCsv);
-//        } catch (IOException e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing file");
-//        }
-//    }
-
-    // Асинхронный вариант
     @PostMapping(value = "/enrich",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = "text/csv")
