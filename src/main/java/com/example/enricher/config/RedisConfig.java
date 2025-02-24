@@ -11,7 +11,6 @@ public class RedisConfig {
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        // Используем настройки по умолчанию для локального Redis
         return new LettuceConnectionFactory();
     }
 

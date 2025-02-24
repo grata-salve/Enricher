@@ -1,6 +1,7 @@
 package com.example.enricher.service;
 
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -13,19 +14,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
 
     private final RedisTemplate<String, String> redisTemplate;
     private static final String PRODUCT_KEY_PREFIX = "product:";
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
 
-    public ProductService(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
-
     @PostConstruct
     public void loadProducts() {
-        // Загружаем product.csv из classpath
         ClassPathResource resource = new ClassPathResource("product.csv");
         try (InputStream is = resource.getInputStream();
              BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
@@ -33,7 +30,7 @@ public class ProductService {
             boolean firstLine = true;
             while ((line = reader.readLine()) != null) {
                 if (firstLine) {
-                    firstLine = false; // пропускаем заголовок
+                    firstLine = false;
                     continue;
                 }
                 String[] tokens = line.split(",");
@@ -52,7 +49,7 @@ public class ProductService {
     public String getProductName(String productId) {
         String productName = redisTemplate.opsForValue().get(PRODUCT_KEY_PREFIX + productId);
         if (productName == null) {
-            logger.error("Missing mapping for productId: {}", productId);
+            //logger.error("Missing mapping for productId: {}", productId);
             return "Missing Product Name";
         }
         return productName;

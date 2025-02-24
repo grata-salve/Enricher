@@ -24,10 +24,8 @@ public class TradeEnrichmentControllerTest {
                 "20230101,2,EUR,200.45\n" +
                 "invalidDate,1,EUR,1700.70\n";
 
-        // Создаем MockMultipartFile
         MockMultipartFile file = new MockMultipartFile("file", "trade.csv", "text/csv", csvData.getBytes());
 
-        // Выполняем запрос
         mockMvc.perform(multipart("/api/v1/enrich").file(file))
                 .andExpect(status().isOk());
     }
