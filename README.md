@@ -72,13 +72,13 @@ mvn test
 
 ## 📸 Screenshots
 ### API Testing in Postman
-[Postman Request](https://github.com/grata-salve/Enricher/issues/1)
+<img src="images/Postman%20test.png" alt="Postman Test" width="550">
 
 ### Test Execution
-![Test Results](https://github.com/grata-salve/Enricher/issues/3)
+![Test Results](images/Tested%20methods.png)
 
 ### Code Coverage
-![Coverage Report](https://github.com/grata-salve/Enricher/issues/2)
+![Coverage Report](images/Test%20coverage.png)
 
 ## 📌 Completed Tasks
 
